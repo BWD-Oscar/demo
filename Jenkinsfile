@@ -5,14 +5,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Jenkins has checked out the source code from GitHub.'
-            }
-        }
-
-        stage('Check Source') {
-            steps {
-                sh 'ls -la'
-                sh 'test -f pom.xml'
+                echo 'Source code checked out from GitHub.'
             }
         }
 
@@ -21,14 +14,26 @@ pipeline {
                 sh 'mvn clean verify'
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t demo:latest .'
+            }
+        }
+
+        stage('Verify Docker Image') {
+            steps {
+                sh 'docker images demo:latest'
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build and tests completed successfully!'
+            echo 'Maven build and Docker image build completed successfully!'
         }
         failure {
-            echo 'Build failed. Check the console output for details.'
+            echo 'Pipeline failed. Check the console output.'
         }
     }
 }
